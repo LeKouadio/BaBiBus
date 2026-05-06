@@ -19,6 +19,19 @@ export const Favorites = () => {
 
   const [favoriteStops, setFavoriteStops] = React.useState<(BusStop & { distance: number })[]>([]);
 
+  const [currentUserPosition, setCurrentUserPosition] = React.useState<{ latitude: number, longitude: number } | null>(null);
+  
+  React.useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setCurrentUserPosition({ latitude, longitude });
+      }, (error) => {
+        console.warn("Geolocation error in Favorites:", error);
+      });
+    }
+  }, []);
+
   React.useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -34,8 +47,8 @@ export const Favorites = () => {
               longitude: fav.arret.longitude,
               lines: fav.arret.lignes || [],
               distance: calculateDistance(
-                mockUserPosition.latitude,
-                mockUserPosition.longitude,
+                currentUserPosition?.latitude || mockUserPosition.latitude,
+                currentUserPosition?.longitude || mockUserPosition.longitude,
                 fav.arret.latitude,
                 fav.arret.longitude
               )
@@ -49,7 +62,7 @@ export const Favorites = () => {
     if (user) {
       fetchFavorites();
     }
-  }, [user, user?.favorites]);
+  }, [user, user?.favorites, currentUserPosition]);
 
   const handleRemove = (stopId: string, stopName: string) => {
     removeFavorite(stopId);
@@ -123,6 +136,10 @@ export const Favorites = () => {
                     stop={stop}
                     distance={stop.distance}
                     onClick={() => navigate(`/user/stop/${stop.id}`)}
+                    onMapAction={(e) => {
+                      e.stopPropagation();
+                      navigate(`/user/home?map=true&stopId=${stop.id}`);
+                    }}
                   />
                 </motion.div>
 

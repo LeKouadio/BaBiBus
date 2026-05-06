@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role?: 'user' | 'admin') => Promise<void>;
-  register: (name: string, email: string, password: string, phone: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, phone: string) => Promise<User>;
   logout: () => void;
   updateProfile: (name: string, email: string, phone: string) => Promise<void>;
   addFavorite: (stopId: string) => void;
   removeFavorite: (stopId: string) => void;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string, role: 'user' | 'admin' = 'user') => {
+  const login = async (email: string, password: string): Promise<User> => {
     const response = await api.post('/auth/login', { email, motDePasse: password });
     const { token } = response.data;
     
@@ -66,18 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('babibus_jwt', token);
     
     // Fetch user details
-    const userResponse = await api.get('/users/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const userResponse = await api.get('/users/me');
     const userData = userResponse.data;
 
     if (!userData) throw new Error('Failed to fetch user details after login');
 
     let favorites: string[] = [];
     try {
-      const favResponse = await api.get('/favorites/', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const favResponse = await api.get('/favorites/');
       if (Array.isArray(favResponse.data)) {
         favorites = favResponse.data
           .filter((fav: any) => fav && fav.arret && fav.arret.id)
@@ -87,17 +85,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Failed to fetch favorites", e);
     }
 
-    setUser({
+    const user = {
       id: userData.id?.toString() || '',
       name: userData.nom || 'Utilisateur',
       email: userData.email || '',
       role: (userData.role?.toLowerCase() as 'user' | 'admin') || 'user',
       phone: userData.telephone || '',
       favorites: favorites
-    });
+    };
+
+    setUser(user);
+    return user;
   };
 
-  const register = async (name: string, email: string, password: string, phone: string) => {
+  const register = async (name: string, email: string, password: string, phone: string): Promise<User> => {
     const response = await api.post('/auth/register', { 
       nom: name, 
       email, 
@@ -116,14 +117,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!userData) throw new Error('Failed to fetch user details after register');
 
-    setUser({
+    const user = {
       id: userData.id?.toString() || '',
       name: userData.nom || 'Utilisateur',
       email: userData.email || '',
       role: (userData.role?.toLowerCase() as 'user' | 'admin') || 'user',
       phone: userData.telephone || '',
       favorites: []
-    });
+    };
+
+    setUser(user);
+    return user;
   };
 
   const logout = () => {
@@ -176,8 +180,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const forgotPassword = async (email: string) => {
+    await api.post('/auth/forgot-password', { email });
+  };
+
+  const resetPassword = async (token: string, password: string) => {
+    await api.post('/auth/reset-password', { token, newPassword: password });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, addFavorite, removeFavorite }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, addFavorite, removeFavorite, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

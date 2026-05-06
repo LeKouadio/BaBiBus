@@ -6,7 +6,7 @@ export const AuthBackground = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       {/* Dynamic Gradient Base */}
-      <div className="absolute inset-0 bg-[#FDFDFD]" />
+      <div className="absolute inset-0 bg-background transition-colors duration-300" />
       
       {/* Animated Gradients */}
       <motion.div
@@ -20,7 +20,7 @@ export const AuthBackground = () => {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#FFF3E0] blur-[100px] opacity-60"
+        className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-orange-500/10 blur-[100px] opacity-60"
       />
       
       <motion.div
@@ -35,7 +35,7 @@ export const AuthBackground = () => {
           ease: "easeInOut",
           delay: 2
         }}
-        className="absolute bottom-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-[#E8F5E9] blur-[120px] opacity-50"
+        className="absolute bottom-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-green-500/10 blur-[120px] opacity-50"
       />
 
       {/* Floating Icons */}
@@ -46,8 +46,8 @@ export const AuthBackground = () => {
       <FloatingIcon icon={<Bus className="w-6 h-6" />} bottom="15%" right="10%" delay={3} />
       
       {/* Grid Overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" 
-           style={{ backgroundImage: 'radial-gradient(#1A1A1A 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} 
+      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
+           style={{ backgroundImage: 'radial-gradient(currentColor 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} 
       />
     </div>
   );
@@ -69,7 +69,7 @@ const FloatingIcon = ({ icon, top, left, right, bottom, delay }: any) => (
       ease: "easeInOut" 
     }}
     style={{ position: 'absolute', top, left, right, bottom }}
-    className="text-[#1A1A1A]"
+    className="text-foreground/20"
   >
     {icon}
   </motion.div>

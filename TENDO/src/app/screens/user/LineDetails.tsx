@@ -33,7 +33,7 @@ export const LineDetails = () => {
 
   if (loading) {
     return (
-      <div className="size-full bg-white flex items-center justify-center">
+      <div className="size-full bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#F57C00] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -41,7 +41,7 @@ export const LineDetails = () => {
 
   if (!line) {
     return (
-      <div className="size-full bg-white flex flex-col">
+      <div className="size-full bg-background flex flex-col">
         <Header title={t('line_details.not_found')} showBack />
         <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
             <Info className="w-16 h-16 text-gray-300 mb-4" />
@@ -52,7 +52,7 @@ export const LineDetails = () => {
   }
 
   return (
-    <div className="size-full bg-[#FAFAFA] flex flex-col overflow-hidden">
+    <div className="size-full bg-background flex flex-col overflow-hidden transition-colors duration-300">
       <Header title={`${t('stop_details.line')} ${line.numero}`} showBack />
 
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-[34px]">
@@ -60,7 +60,7 @@ export const LineDetails = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[32px] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-white mb-8"
+          className="bg-card rounded-[32px] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-border mb-8"
         >
           <div className="flex items-center gap-5 mb-6">
             <div 
@@ -80,7 +80,7 @@ export const LineDetails = () => {
               <p className="text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-1">{t('home.stops')}</p>
               <p className="text-[18px] font-black text-[#1A1A1A]">{stops.length}</p>
             </div>
-            <div className="w-px h-8 bg-gray-100" />
+            <div className="w-px h-8 bg-muted" />
             <div className="text-center flex-1">
               <p className="text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-1">{t('line_details.status')}</p>
               <p className="text-[14px] font-bold text-[#2E7D32]">{t('line_details.in_service')}</p>
@@ -92,7 +92,7 @@ export const LineDetails = () => {
         <div className="space-y-0 relative">
           <div className="absolute left-[27px] top-4 bottom-4 w-[3px] bg-gradient-to-b from-[#F57C00] to-[#F57C00]/20 rounded-full" />
           
-          <h3 className="text-[16px] font-black text-[#1A1A1A] mb-6 px-2 flex items-center gap-2">
+          <h3 className="text-[16px] font-black text-foreground mb-6 px-2 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-[#F57C00]" />
             {t('line_details.stops_list')}
           </h3>
@@ -106,12 +106,12 @@ export const LineDetails = () => {
               onClick={() => navigate(`/user/stop/${stop.id}`)}
               className="relative pl-14 pb-8 last:pb-0 group cursor-pointer"
             >
-              <div className="absolute left-[21px] top-1 w-[15px] h-[15px] rounded-full bg-white border-[3px] border-[#F57C00] z-10 group-active:scale-125 transition-transform" />
+              <div className="absolute left-[21px] top-1 w-[15px] h-[15px] rounded-full bg-background border-[3px] border-[#F57C00] z-10 group-active:scale-125 transition-transform" />
               
-              <div className="bg-white rounded-[24px] p-4 shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-gray-50 flex items-center justify-between group-active:bg-gray-50 transition-colors">
+              <div className="bg-card rounded-[24px] p-4 shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-border flex items-center justify-between group-active:bg-muted transition-colors">
                 <div>
-                  <p className="font-bold text-[#1A1A1A] text-[15px]">{stop.nom}</p>
-                  <p className="text-[12px] text-[#9E9E9E] font-medium">{t('line_details.bus_stop')}</p>
+                  <p className="font-bold text-foreground text-[15px]">{stop.nom}</p>
+                  <p className="text-[12px] text-muted-foreground font-medium">{t('line_details.bus_stop')}</p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-[#E0E0E0] group-hover:text-[#F57C00] transition-colors" />
               </div>

@@ -62,8 +62,8 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
+  --input-background: oklch(0.269 0 0);
   --ring: oklch(0.439 0 0);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -202,4 +202,27 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .lucide-chevron-right,
+[dir="rtl"] .lucide-chevron-left,
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] .lucide-arrow-left {
+  transform: scaleX(-1);
+}
+
+/* Ensure Cairo font is prioritized for Arabic */
+[lang="ar"] {
+  font-family: 'Cairo', var(--font-sans);
+}
+
+[lang="ar"] h1, 
+[lang="ar"] h2, 
+[lang="ar"] h3 {
+  font-family: 'Cairo', var(--font-display);
 }

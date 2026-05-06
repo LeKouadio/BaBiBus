@@ -34,7 +34,7 @@ export const EditProfile = () => {
     setLoading(true);
     try {
       await updateProfile(name, email, phone);
-      toast.success(t('admin.stop_updated')); // Reusing updated success
+      toast.success(t('profile.updated'));
       navigate('/user/profile');
     } catch (error) {
       toast.error(t('common.error_occurred'));
@@ -44,7 +44,7 @@ export const EditProfile = () => {
   };
 
   return (
-    <div className="size-full bg-white flex flex-col overflow-hidden">
+    <div className="size-full bg-background flex flex-col overflow-hidden transition-colors duration-300">
       <Header title={t('profile.edit_profile')} showBack />
 
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-[34px]">

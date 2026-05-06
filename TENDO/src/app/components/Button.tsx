@@ -30,8 +30,8 @@ export const Button = ({
   const variantStyles = {
     primary: 'bg-[#F57C00] text-white shadow-[0_4px_16px_rgba(245,124,0,0.30)] hover:bg-[#E65100] active:scale-[0.97]',
     secondary: 'bg-[#2E7D32] text-white shadow-[0_4px_16px_rgba(46,125,50,0.30)] hover:bg-[#1B5E20] active:scale-[0.97]',
-    'outline-green': 'bg-white text-[#2E7D32] border-[1.5px] border-[#2E7D32] hover:bg-[#E8F5E9] active:scale-[0.97]',
-    'outline-orange': 'bg-white text-[#F57C00] border-[1.5px] border-[#F57C00] hover:bg-[#FFF3E0] active:scale-[0.97]',
+    'outline-green': 'bg-card text-[#2E7D32] border-[1.5px] border-[#2E7D32] hover:bg-[#E8F5E9] active:scale-[0.97]',
+    'outline-orange': 'bg-card text-[#F57C00] border-[1.5px] border-[#F57C00] hover:bg-[#FFF3E0] active:scale-[0.97]',
     danger: 'bg-[#C62828] text-white hover:bg-[#B71C1C] active:scale-[0.97]'
   };
 

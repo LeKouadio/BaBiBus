@@ -49,11 +49,14 @@ export const Register = () => {
     const newErrors: Record<string, string> = {};
 
     if (!name.trim()) newErrors.name = t('validation.required');
-    if (!email.trim()) {
+    
+    const emailValue = email.trim();
+    if (!emailValue) {
       newErrors.email = t('validation.required');
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(emailValue)) {
       newErrors.email = t('validation.invalid_email');
     }
+
     if (!phone.trim()) {
       newErrors.phone = t('validation.required');
     } else if (!/^\d{8,}$/.test(phone.replace(/\s/g, ''))) {
@@ -91,7 +94,7 @@ export const Register = () => {
   };
 
   return (
-    <div className="size-full bg-[#FAFAFA] flex flex-col overflow-hidden relative">
+    <div className="size-full bg-background flex flex-col overflow-hidden relative transition-colors duration-300">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFB74D]/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#F57C00]/10 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
@@ -238,4 +241,3 @@ export const Register = () => {
     </div>
   );
 };
-

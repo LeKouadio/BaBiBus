@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useParams, useNavigate } from 'react-router';
-import { MapPin, Clock, Heart, Navigation } from 'lucide-react';
+import { MapPin, Clock, Heart, Navigation, Map as MapIcon } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { BusStop, mockUserPosition, calculateDistance } from '../../data/mockData';
@@ -21,6 +21,18 @@ export const StopDetails = () => {
   const [stop, setStop] = React.useState<BusStop | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [roadRoute, setRoadRoute] = React.useState<[number, number][] | undefined>(undefined);
+  const [currentUserPosition, setCurrentUserPosition] = React.useState(mockUserPosition);
+
+  React.useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setCurrentUserPosition({ latitude, longitude });
+      }, (error) => {
+        console.warn("Geolocation error in StopDetails:", error);
+      });
+    }
+  }, []);
 
   React.useEffect(() => {
     const fetchStop = async () => {
@@ -35,14 +47,17 @@ export const StopDetails = () => {
           return;
         }
 
-        setStop({
+        const stopData = {
           id: s.id?.toString() || id || '',
           name: s.nom || 'Arrêt sans nom',
           address: s.adresse || '',
-          latitude: Number(s.latitude),
-          longitude: Number(s.longitude),
-          lines: Array.isArray(s.lignes) ? s.lignes : []
-        });
+          latitude: !isNaN(Number(s.latitude)) ? Number(s.latitude) : mockUserPosition.latitude,
+          longitude: !isNaN(Number(s.longitude)) ? Number(s.longitude) : mockUserPosition.longitude,
+          lines: Array.isArray(s.lignes) 
+            ? [...new Set(s.lignes.map((l: any) => typeof l === 'object' ? (l.numero || l.nom || String(l)) : String(l)))] 
+            : []
+        };
+        setStop(stopData);
       } catch (error) {
         console.error('Failed to fetch stop', error);
         setStop(null);
@@ -53,9 +68,16 @@ export const StopDetails = () => {
     fetchStop();
   }, [id]);
 
+  React.useEffect(() => {
+    if (stop && currentUserPosition) {
+      getRoute([[currentUserPosition.latitude, currentUserPosition.longitude], [stop.latitude, stop.longitude]], 'walking')
+        .then(setRoadRoute);
+    }
+  }, [stop, currentUserPosition]);
+
   if (loading) {
     return (
-      <div className="size-full bg-white flex items-center justify-center">
+      <div className="size-full bg-background flex items-center justify-center">
         <p>{t('stop_details.loading')}</p>
       </div>
     );
@@ -63,31 +85,11 @@ export const StopDetails = () => {
 
   if (!stop) {
     return (
-      <div className="size-full bg-white flex items-center justify-center">
+      <div className="size-full bg-background flex items-center justify-center">
         <p>{t('stop_details.not_found')}</p>
       </div>
     );
   }
-
-  const [currentUserPosition, setCurrentUserPosition] = React.useState(mockUserPosition);
-
-  React.useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCurrentUserPosition({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        });
-      });
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (stop && currentUserPosition) {
-      getRoute([currentUserPosition.latitude, currentUserPosition.longitude], [stop.latitude, stop.longitude])
-        .then(setRoadRoute);
-    }
-  }, [stop, currentUserPosition]);
 
   const distance = calculateDistance(
     currentUserPosition.latitude,
@@ -109,14 +111,14 @@ export const StopDetails = () => {
   };
 
   return (
-    <div className="size-full bg-white flex flex-col overflow-hidden">
+    <div className="size-full bg-background flex flex-col overflow-hidden transition-colors duration-300">
       <Header title={stop.name} showBack />
 
       <div className="flex-1 overflow-y-auto px-5 pt-5 pb-[34px]">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="h-[200px] bg-[#E8F5E9] rounded-[32px] mb-6 relative overflow-hidden shadow-inner border border-gray-100"
+          className="h-[200px] bg-card rounded-[32px] mb-6 relative overflow-hidden shadow-inner border border-border"
         >
           <MapComponent 
             center={[stop.latitude, stop.longitude]} 
@@ -136,7 +138,7 @@ export const StopDetails = () => {
               className="bg-white/90 backdrop-blur-md shadow-lg px-3 py-1.5 rounded-xl border border-[#2E7D32]/10 flex items-center gap-2"
             >
               <Navigation className="w-3.5 h-3.5 text-[#2E7D32] rotate-45 fill-[#2E7D32]" />
-              <span className="text-[13px] font-black text-[#1A1A1A]">{distance} m</span>
+              <span className="text-[13px] font-black text-foreground">{distance} m</span>
             </motion.div>
           </div>
 
@@ -156,7 +158,7 @@ export const StopDetails = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-[20px] border border-[#E8E8E8] p-5 mb-4"
+          className="bg-card rounded-[20px] border border-border p-5 mb-4"
         >
           <p className="text-[11px] font-bold text-[#2E7D32] uppercase tracking-[0.1em] mb-4 opacity-80">
             {t('stop_details.bus_lines')}
@@ -180,7 +182,7 @@ export const StopDetails = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-[20px] border border-[#E8E8E8] p-5 mb-6"
+          className="bg-card rounded-[20px] border border-border p-5 mb-6"
         >
           <p className="text-[11px] font-bold text-[#2E7D32] uppercase tracking-[0.1em] mb-4 opacity-80">
             {t('stop_details.distance_title')}
@@ -189,7 +191,7 @@ export const StopDetails = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-[#2E7D32]" />
-              <span className="text-[#1A1A1A] font-medium">{distance} m {t('stop_details.distance_from_you')}</span>
+              <span className="text-foreground font-medium">{distance} m {t('stop_details.distance_from_you')}</span>
             </div>
 
             <div className="flex items-center gap-3">
@@ -200,7 +202,7 @@ export const StopDetails = () => {
             </div>
 
             <span className="inline-block px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] text-[12px] font-medium rounded-[50px]">
-              {t('stop_details.away_min').replace('{{min}}', Math.round(distance / 80).toString())}
+              {t('stop_details.away_min', { min: Math.round(distance / 80) })}
             </span>
           </div>
         </motion.div>
@@ -208,6 +210,15 @@ export const StopDetails = () => {
         <div className="space-y-3">
           <Button
             variant="primary"
+            fullWidth
+            icon={<MapIcon />}
+            onClick={() => navigate(`/user/home?map=true&stopId=${stop.id}`)}
+          >
+            {t('stop_details.see_route_map')}
+          </Button>
+
+          <Button
+            variant="outline"
             fullWidth
             icon={<Navigation />}
             onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&origin=${currentUserPosition.latitude},${currentUserPosition.longitude}&destination=${stop.latitude},${stop.longitude}&travelmode=walking`, '_blank')}

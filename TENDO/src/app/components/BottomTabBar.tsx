@@ -17,7 +17,7 @@ export const BottomTabBar = () => {
   ];
 
   return (
-    <div className="absolute bottom-6 left-6 right-6 bg-white/80 backdrop-blur-xl border border-white/50 shadow-[0_16px_40px_rgba(0,0,0,0.12)] rounded-[32px] h-[72px] flex items-center justify-around z-50 px-2">
+    <div className="absolute bottom-6 left-6 right-6 bg-card/80 backdrop-blur-xl border border-border shadow-[0_16px_40px_rgba(0,0,0,0.12)] rounded-[32px] h-[72px] flex items-center justify-around z-50 px-2 transition-colors duration-300">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = location.pathname === tab.path || location.pathname.startsWith(`${tab.path}?`);

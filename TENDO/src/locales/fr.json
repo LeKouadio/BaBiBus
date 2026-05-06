@@ -10,6 +10,8 @@
     "feature_realtime": "Temps réel",
     "feature_reliable": "Fiable & Sûr",
     "login": "Se connecter",
+    "login_user": "Connexion Utilisateur",
+    "login_admin": "Accès Administrateur",
     "register": "Créer un compte"
   },
   "home": {
@@ -28,7 +30,11 @@
     "see_all": "Tout voir",
     "lines_count": "lignes",
     "distance": "m de vous",
-    "nearby_stops": "Arrêts proches",
+    "nearby_stops_title": "Arrêts proches",
+    "nearby_stops": "proches",
+    "very_nearby_stops": "très proches",
+    "priority": "Priorité",
+    "optional_stops": "MOINs proches",
     "locating": "Recherche de votre position...",
     "please_wait": "Veuillez patienter quelques instants",
     "where_to": "Où allez-vous aujourd'hui ?",
@@ -51,11 +57,13 @@
     "edit_profile": "Modifier mon profil",
     "notifications": "Notifications",
     "search_history": "Historique des recherches",
-    "app_language": "Changer la langue (FR/EN)",
+    "app_language": "Changer la langue (FR/EN/AR/MNK)",
+    "app_theme": "Thème Sombre / Clair",
     "about": "À propos de BaBiBUS",
     "logout": "Se déconnecter",
     "logout_success": "Déconnexion réussie",
-    "language_changed": "Langue changée en Français"
+    "language_changed": "Langue changée en Français",
+    "updated": "Profil mis à jour avec succès"
   },
   "bottom_tabs": {
     "home": "Accueil",
@@ -100,7 +108,7 @@
     "walk_min": "min à pied",
     "away_min": "À {{min}} min de vous",
     "see_route_map": "Itinéraire",
-    "see_route_google_map": "Itinéraire map",
+    "see_route_google_map": "Google Maps",
     "see_route_here": "Voir itinéraire ici",
     "add_favorite": "Ajouter aux favoris",
     "remove_favorite": "Retirer des favoris",
@@ -170,7 +178,17 @@
     "register_success": "Compte créé avec succès !",
     "reset_link_sent": "Un lien de réinitialisation a été envoyé à votre email",
     "error_invalid_credentials": "Email ou mot de passe incorrect",
-    "login_required": "Veuillez vous connecter pour effectuer cette action"
+    "error_account_disabled": "Votre compte a été désactivé. Contactez l'administrateur.",
+    "login_required": "Veuillez vous connecter pour effectuer cette action",
+    "forgot_password_title": "Mot de passe oublié ?",
+    "forgot_password_subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+    "forgot_password_btn": "Envoyer le lien",
+    "reset_password_title": "Réinitialiser le mot de passe",
+    "reset_password_subtitle": "Choisissez votre nouveau mot de passe",
+    "reset_password_btn": "Réinitialiser",
+    "reset_password_success": "Mot de passe réinitialisé avec succès",
+    "error_user_not_found": "Aucun compte trouvé avec cet email",
+    "error_invalid_token": "Le lien de réinitialisation est invalide ou a expiré"
   },
   "admin": {
     "dashboard_title": "Administration BaBiBUS",
@@ -206,9 +224,19 @@
     "line_added": "Ligne ajoutée",
     "stop_updated": "Arrêt mis à jour",
     "stop_added": "Arrêt ajouté",
-    "active_line": "Ligne active"
+    "line_number_exists": "Ce numéro de ligne existe déjà",
+    "active_line": "Ligne active",
+    "has_wifi": "WiFi à bord",
+    "has_ac": "Climatisation",
+    "is_accessible": "Accès PMR",
+    "line_type": "Type de ligne",
+    "type_standard": "Standard",
+    "type_express": "Express",
+    "type_shuttle": "Navette",
+    "use_my_location": "Ma position actuelle"
   },
   "common": {
+    "create": "Créer",
     "save": "Enregistrer",
     "update": "Mettre à jour",
     "delete": "Supprimer",

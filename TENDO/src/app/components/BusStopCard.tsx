@@ -17,11 +17,11 @@ export const BusStopCard = ({ stop, distance, onClick, onMapAction }: BusStopCar
   const { t } = useTranslation();
   const { user, addFavorite, removeFavorite } = useAuth();
   
-  const isFavorite = user?.favorites.includes(stop.id.toString());
+  const isFavorite = user?.favorites?.includes(stop.id.toString()) || false;
   return (
     <motion.div
       onClick={onClick}
-      className="bg-white rounded-[24px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100/50 cursor-pointer relative overflow-hidden group"
+      className="bg-card rounded-[24px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-border cursor-pointer relative overflow-hidden group transition-colors duration-300"
       whileHover={{ y: -4, shadow: "0 12px 40px rgba(0,0,0,0.08)" }}
       whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -58,7 +58,7 @@ export const BusStopCard = ({ stop, distance, onClick, onMapAction }: BusStopCar
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
               isFavorite 
                 ? 'bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/20' 
-                : 'bg-gray-50 text-gray-300 border border-gray-100'
+                : 'bg-muted text-muted-foreground border border-border'
             } shadow-sm hover:scale-110`}
           >
             <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
@@ -72,7 +72,7 @@ export const BusStopCard = ({ stop, distance, onClick, onMapAction }: BusStopCar
             {stop.lines.map((line) => (
               <span
                 key={line}
-                className="px-3 py-1 bg-gray-100 text-gray-700 text-[12px] font-bold rounded-xl border border-gray-200"
+                className="px-3 py-1 bg-muted text-foreground text-[12px] font-bold rounded-xl border border-border"
               >
                 {t('stop_details.line')} {line}
               </span>

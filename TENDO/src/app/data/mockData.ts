@@ -12,6 +12,10 @@ export interface BusLine {
   number: string;
   name: string;
   color: string;
+  type?: string;
+  hasWiFi?: boolean;
+  hasAC?: boolean;
+  isAccessible?: boolean;
   stops: string[];
 }
 
@@ -22,6 +26,7 @@ export interface User {
   phone?: string;
   role: 'user' | 'admin';
   favorites: string[];
+  enabled: boolean;
 }
 
 export const mockBusStops: BusStop[] = [
@@ -118,6 +123,6 @@ export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2
 };
 
 export const mockUserPosition = {
-  latitude: 5.30966,
-  longitude: -4.01266
+  latitude: 5.3265,
+  longitude: -4.0180
 };
