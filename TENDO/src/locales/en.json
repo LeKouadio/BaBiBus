@@ -10,6 +10,8 @@
     "feature_realtime": "Real-time",
     "feature_reliable": "Reliable & Safe",
     "login": "Login",
+    "login_user": "User Login",
+    "login_admin": "Admin Access",
     "register": "Create account"
   },
   "home": {
@@ -28,7 +30,11 @@
     "see_all": "See all",
     "lines_count": "lines",
     "distance": "m away",
+    "nearby_stops_title": "Nearby stops",
     "nearby_stops": "Nearby stops",
+    "very_nearby_stops": "Very nearby stops",
+    "priority": "Priority",
+    "optional_stops": "Extra options",
     "locating": "Finding your location...",
     "please_wait": "Please wait a moment",
     "where_to": "Where are you going today?",
@@ -51,7 +57,8 @@
     "edit_profile": "Edit my profile",
     "notifications": "Notifications",
     "search_history": "Search history",
-    "app_language": "Change language (FR/EN)",
+    "app_language": "Change language (FR/EN/AR/MNK)",
+    "app_theme": "Dark / Light Mode",
     "about": "About BaBiBUS",
     "logout": "Logout",
     "logout_success": "Logout successful",
@@ -100,7 +107,7 @@
     "walk_min": "min walk",
     "away_min": "{{min}} min away",
     "see_route_map": "Route",
-    "see_route_google_map": "Map Route",
+    "see_route_google_map": "Google Maps",
     "see_route_here": "See route here",
     "add_favorite": "Add to favorites",
     "remove_favorite": "Remove from favorites",
@@ -170,7 +177,17 @@
     "register_success": "Account created successfully!",
     "reset_link_sent": "A reset link has been sent to your email",
     "error_invalid_credentials": "Incorrect email or password",
-    "login_required": "Please login to perform this action"
+    "error_account_disabled": "Your account has been disabled. Please contact the administrator.",
+    "login_required": "Please login to perform this action",
+    "forgot_password_title": "Forgot Password?",
+    "forgot_password_subtitle": "Enter your email to receive a reset link",
+    "forgot_password_btn": "Send link",
+    "reset_password_title": "Reset Password",
+    "reset_password_subtitle": "Choose your new password",
+    "reset_password_btn": "Reset",
+    "reset_password_success": "Password reset successfully",
+    "error_user_not_found": "No account found with this email",
+    "error_invalid_token": "The reset link is invalid or has expired"
   },
   "admin": {
     "dashboard_title": "BaBiBUS Administration",
@@ -209,6 +226,7 @@
     "active_line": "Active line"
   },
   "common": {
+    "create": "Create",
     "save": "Save",
     "update": "Update",
     "delete": "Delete",

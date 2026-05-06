@@ -63,18 +63,20 @@ export const ManageStops = () => {
       };
 
       if (editingStop) {
-        await api.put(`/admin/stops/${editingStop.id}`, payload);
+        await api.put(`/admin/stops/${editingStop.id}/`, payload);
         toast.success(t('admin.stop_updated'));
       } else {
-        await api.post('/admin/stops', payload);
+        await api.post('/admin/stops/', payload);
         toast.success(t('admin.stop_added'));
       }
       setIsModalOpen(false);
       setEditingStop(null);
       setFormData({ name: '', address: '', latitude: '', longitude: '' });
       fetchStops();
-    } catch (e) {
-      toast.error(t('common.error_saving'));
+    } catch (e: any) {
+      console.error('Error saving stop:', e);
+      const errorMsg = e.response?.data?.message || t('common.error_saving');
+      toast.error(errorMsg);
     }
   };
 
@@ -99,6 +101,23 @@ export const ManageStops = () => {
       <Header title={t('admin.manage_stops')} showBack />
 
       <div className="flex-1 overflow-y-auto px-5 pt-5 pb-[34px]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-[#1A1A1A]">{t('admin.active_stops')}</h2>
+            <p className="text-sm text-[#9E9E9E]">
+              {filteredStops.length} {t('home.stops').toLowerCase()}
+            </p>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => openModal()}
+            className="bg-[#F57C00] text-white px-4 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-200"
+          >
+            <Plus className="w-4 h-4" />
+            {t('common.create')}
+          </motion.button>
+        </div>
+
         <div className="mb-5">
           <div className="relative mb-3">
             <input
@@ -110,10 +129,6 @@ export const ManageStops = () => {
             />
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F57C00]" />
           </div>
-
-          <p className="text-sm text-[#9E9E9E]">
-            {filteredStops.length} {t('home.stops').toLowerCase()} {t('favorites.count_plural')}
-          </p>
         </div>
 
         <div className="space-y-3 mb-20">

@@ -54,10 +54,10 @@ export const Search = () => {
   React.useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
-        setCurrentUserPosition({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        });
+        const { latitude, longitude } = position.coords;
+        setCurrentUserPosition({ latitude, longitude });
+      }, (error) => {
+        console.warn("Geolocation error in Search:", error);
       });
     }
   }, []);
@@ -121,17 +121,19 @@ export const Search = () => {
           : (response.data?.content || []);
 
         const data = stopsData.map((s: any) => ({
-          id: s.id.toString(),
-          name: s.nom,
-          address: '',
-          latitude: s.latitude,
-          longitude: s.longitude,
-          lines: s.lignes || [],
+          id: s.id?.toString() || Math.random().toString(),
+          name: s.nom || 'Arrêt sans nom',
+          address: s.adresse || '',
+          latitude: !isNaN(Number(s.latitude)) ? Number(s.latitude) : mockUserPosition.latitude,
+          longitude: !isNaN(Number(s.longitude)) ? Number(s.longitude) : mockUserPosition.longitude,
+          lines: Array.isArray(s.lignes) 
+            ? [...new Set(s.lignes.map((l: any) => typeof l === 'object' ? (l.numero || l.nom || String(l)) : String(l)))] 
+            : [],
           distance: calculateDistance(
             currentUserPosition.latitude,
             currentUserPosition.longitude,
-            s.latitude,
-            s.longitude
+            Number(s.latitude) || mockUserPosition.latitude,
+            Number(s.longitude) || mockUserPosition.longitude
           )
         })).sort((a: any, b: any) => a.distance - b.distance);
         setFilteredStops(data);
@@ -145,10 +147,10 @@ export const Search = () => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, searchType]);
+  }, [searchQuery, searchType, currentUserPosition]); // Added currentUserPosition to deps
 
   return (
-    <div className="size-full bg-[#FDFDFD] flex flex-col overflow-hidden">
+    <div className="size-full bg-background flex flex-col overflow-hidden transition-colors duration-300">
       <Header title={searchType === 'ligne' ? t('admin.manage_lines') : t('search.title')} />
 
       <div className="flex-1 overflow-y-auto px-6 pt-5 pb-[100px]">
@@ -164,7 +166,7 @@ export const Search = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getPlaceholder()}
-                className="w-full h-[52px] rounded-[50px] px-5 pl-12 bg-[#FAFAFA] border border-[#E8E8E8] focus:border-[#F57C00] transition-all"
+                className="w-full h-[52px] rounded-[50px] px-5 pl-12 bg-input-background border border-border focus:border-[#F57C00] transition-all text-foreground"
                 autoFocus
               />
               <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F57C00]" />
@@ -191,7 +193,7 @@ export const Search = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.03 }}
                 onClick={() => navigate(`/user/home?map=true&lineId=${line.id}`)}
-                className="bg-white rounded-[32px] p-6 shadow-[0_8px_25px_rgba(0,0,0,0.04)] border border-gray-100/50 flex flex-col items-center text-center gap-4 active:scale-95 transition-all cursor-pointer group"
+                className="bg-card rounded-[32px] p-6 shadow-[0_8px_25px_rgba(0,0,0,0.04)] border border-border flex flex-col items-center text-center gap-4 active:scale-95 transition-all cursor-pointer group"
               >
                 <div 
                   className="w-16 h-16 rounded-[22px] flex items-center justify-center text-white font-black text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
@@ -202,19 +204,19 @@ export const Search = () => {
                 <div>
                   <h3 className="font-extrabold text-[#F57C00] text-[15px] leading-tight line-clamp-1 h-[18px]">{line.nom}</h3>
                   <p className="text-[10px] text-[#2E7D32] font-bold mt-1">{line.type || 'Standard'}</p>
-                  <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full group-hover:bg-[#F57C00]/10 transition-colors">
-                    <span className="text-[10px] font-black text-[#9E9E9E] group-hover:text-[#F57C00] uppercase tracking-wider">{t('stop_details.see_route')}</span>
-                    <ChevronRight className="w-3 h-3 text-[#9E9E9E] group-hover:text-[#F57C00]" />
+                  <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-muted rounded-full group-hover:bg-[#F57C00]/10 transition-colors">
+                    <span className="text-[10px] font-black text-muted-foreground group-hover:text-[#F57C00] uppercase tracking-wider">{t('stop_details.see_route')}</span>
+                    <ChevronRight className="w-3 h-3 text-muted-foreground group-hover:text-[#F57C00]" />
                   </div>
                 </div>
               </motion.div>
             )) : (
               <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                  <SearchIcon className="w-10 h-10 text-gray-200" />
+                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <SearchIcon className="w-10 h-10 text-muted-foreground" />
                 </div>
-                <p className="text-[#1A1A1A] font-bold">{t('search.no_lines_found')}</p>
-                <p className="text-[13px] text-[#9E9E9E] mt-1">{t('search.lines_will_appear')}</p>
+                <p className="text-foreground font-bold">{t('search.no_lines_found')}</p>
+                <p className="text-[13px] text-muted-foreground mt-1">{t('search.lines_will_appear')}</p>
               </div>
             )}
           </div>
@@ -223,13 +225,13 @@ export const Search = () => {
             {history.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[16px] font-bold text-[#1A1A1A]">{t('search.recent_searches')}</h3>
+                  <h3 className="text-[16px] font-bold text-foreground">{t('search.recent_searches')}</h3>
                   <button 
                     onClick={() => {
                       setHistory([]);
                       localStorage.removeItem('searchHistory');
                     }}
-                    className="text-[#9E9E9E] text-[12px] font-medium"
+                    className="text-muted-foreground text-[12px] font-medium"
                   >
                     {t('search.clear')}
                   </button>
@@ -239,7 +241,7 @@ export const Search = () => {
                     <button
                       key={i}
                       onClick={() => setSearchQuery(h)}
-                      className="px-4 py-2 bg-[#FAFAFA] border border-[#E8E8E8] rounded-[50px] text-[13px] text-[#424242] font-medium active:scale-95 transition-transform"
+                      className="px-4 py-2 bg-muted border border-border rounded-[50px] text-[13px] text-foreground font-medium active:scale-95 transition-transform"
                     >
                       {h}
                     </button>
@@ -250,8 +252,8 @@ export const Search = () => {
             
             <div className="flex items-center justify-center py-10">
               <div className="text-center">
-                <SearchIcon className="w-16 h-16 text-[#9E9E9E] mx-auto mb-3" />
-                <p className="text-[#616161] text-[14px]">
+                <SearchIcon className="w-16 h-16 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-[14px]">
                   {getHelperText()}
                 </p>
               </div>
@@ -266,10 +268,10 @@ export const Search = () => {
               >
                 <SearchIcon className="w-16 h-16 text-[#9E9E9E] mx-auto mb-3" />
               </motion.div>
-              <p className="text-[#1A1A1A] font-semibold mb-1">
+              <p className="text-foreground font-semibold mb-1">
                 {t('search.no_results')}
               </p>
-              <p className="text-[#616161] text-[14px]">
+              <p className="text-muted-foreground text-[14px]">
                 {t('search.try_another')}
               </p>
             </div>
@@ -287,6 +289,10 @@ export const Search = () => {
                   stop={stop}
                   distance={stop.distance}
                   onClick={() => navigate(`/user/stop/${stop.id}`)}
+                  onMapAction={(e) => {
+                    e.stopPropagation();
+                    navigate(`/user/home?map=true&stopId=${stop.id}`);
+                  }}
                 />
               </motion.div>
             ))}

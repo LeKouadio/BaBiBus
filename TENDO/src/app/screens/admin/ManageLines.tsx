@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Search, Edit, Trash2, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { BusLine } from '../../data/mockData';
 import { toast } from 'sonner';
@@ -11,9 +11,19 @@ export const ManageLines = () => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [lines, setLines] = useState<BusLine[]>([]);
+  const [allStops, setAllStops] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLine, setEditingLine] = useState<BusLine | null>(null);
-  const [formData, setFormData] = useState({ number: '', name: '', color: '#F57C00' });
+  const [formData, setFormData] = useState({ 
+    number: '', 
+    name: '', 
+    color: '#F57C00',
+    type: 'Standard',
+    hasWiFi: false,
+    hasAC: false,
+    isAccessible: false,
+    selectedStops: [] as string[]
+  });
 
   const fetchLines = async () => {
     try {
@@ -23,7 +33,11 @@ export const ManageLines = () => {
         number: l.numero,
         name: l.nom,
         color: l.couleur,
-        stops: [] // Assuming stops are fetched separately if needed
+        type: l.type,
+        hasWiFi: l.hasWiFi,
+        hasAC: l.hasAC,
+        isAccessible: l.isAccessible,
+        stops: l.lineStops ? l.lineStops.map((ls: any) => ls.stop.id.toString()) : []
       }));
       setLines(data);
     } catch (e) {
@@ -32,8 +46,20 @@ export const ManageLines = () => {
     }
   };
 
+  const fetchStops = async () => {
+    try {
+      const response = await api.get('/stops/search?name=&size=200');
+      if (response.data && response.data.content) {
+        setAllStops(response.data.content);
+      }
+    } catch (e) {
+      console.error('Error fetching stops:', e);
+    }
+  };
+
   useEffect(() => {
     fetchLines();
+    fetchStops();
   }, []);
 
   const filteredLines = lines.filter(line =>
@@ -54,26 +80,56 @@ export const ManageLines = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check for duplicate number (only for new lines or if number changed)
+    const isDuplicate = lines.some(l => 
+      l.number === formData.number && (!editingLine || editingLine.id !== l.id)
+    );
+    
+    if (isDuplicate) {
+      toast.error(t('admin.line_number_exists') || "Ce numéro de ligne existe déjà.");
+      return;
+    }
+
     try {
       const payload = {
         numero: formData.number,
         nom: formData.name,
-        couleur: formData.color
+        couleur: formData.color,
+        type: formData.type === 'Shuttle' ? 'Navette' : formData.type,
+        hasWiFi: formData.hasWiFi,
+        hasAC: formData.hasAC,
+        isAccessible: formData.isAccessible,
+        lineStops: formData.selectedStops.map((stopId, index) => ({
+          stop: { id: parseInt(stopId) },
+          position: index + 1
+        }))
       };
 
       if (editingLine) {
         await api.put(`/admin/lines/${editingLine.id}`, payload);
         toast.success(t('admin.line_updated'));
       } else {
-        await api.post('/admin/lines', payload);
+        await api.post('/admin/lines/', payload);
         toast.success(t('admin.line_added'));
       }
       setIsModalOpen(false);
       setEditingLine(null);
-      setFormData({ number: '', name: '', color: '#F57C00' });
+      setFormData({ 
+        number: '', 
+        name: '', 
+        color: '#F57C00',
+        type: 'Standard',
+        hasWiFi: false,
+        hasAC: false,
+        isAccessible: false,
+        selectedStops: []
+      });
       fetchLines();
-    } catch (e) {
-      toast.error(t('common.error_saving'));
+    } catch (e: any) {
+      console.error('Error saving line:', e);
+      const errorMsg = e.response?.data?.message || t('common.error_saving');
+      toast.error(errorMsg);
     }
   };
 
@@ -83,11 +139,25 @@ export const ManageLines = () => {
       setFormData({
         number: line.number,
         name: line.name,
-        color: line.color
+        color: line.color,
+        type: (line as any).type || 'Standard',
+        hasWiFi: (line as any).hasWiFi || false,
+        hasAC: (line as any).hasAC || false,
+        isAccessible: (line as any).isAccessible || false,
+        selectedStops: line.stops || []
       });
     } else {
       setEditingLine(null);
-      setFormData({ number: '', name: '', color: '#F57C00' });
+      setFormData({ 
+        number: '', 
+        name: '', 
+        color: '#F57C00',
+        type: 'Standard',
+        hasWiFi: false,
+        hasAC: false,
+        isAccessible: false,
+        selectedStops: []
+      });
     }
     setIsModalOpen(true);
   };
@@ -97,6 +167,23 @@ export const ManageLines = () => {
       <Header title={t('admin.manage_lines')} showBack />
 
       <div className="flex-1 overflow-y-auto px-5 pt-5 pb-[34px]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-[#1A1A1A]">{t('admin.lines')}</h2>
+            <p className="text-sm text-[#9E9E9E]">
+              {filteredLines.length} {t('home.lines_count')}
+            </p>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => openModal()}
+            className="bg-[#F57C00] text-white px-4 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-200"
+          >
+            <Plus className="w-4 h-4" />
+            {t('common.create')}
+          </motion.button>
+        </div>
+
         <div className="mb-5">
           <div className="relative mb-3">
             <input
@@ -108,10 +195,6 @@ export const ManageLines = () => {
             />
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F57C00]" />
           </div>
-
-          <p className="text-sm text-[#9E9E9E]">
-            {filteredLines.length} {t('home.lines_count')} {t('favorites.count_plural')}
-          </p>
         </div>
 
         <div className="space-y-3 mb-20">
@@ -133,9 +216,12 @@ export const ManageLines = () => {
 
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-[#1A1A1A] mb-1">{line.name}</h3>
-                  <span className="inline-block px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] text-[12px] font-medium rounded-[50px]">
-                    {t('admin.active_line')}
-                  </span>
+                  <div className="flex gap-2">
+                    <span className="inline-block px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold rounded-full uppercase">
+                      {line.type || 'Standard'}
+                    </span>
+                    {line.hasWiFi && <span className="inline-block px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full uppercase">WiFi</span>}
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
@@ -176,13 +262,13 @@ export const ManageLines = () => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-5"
           >
-            <motion.div
+              <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-[350px] rounded-[32px] overflow-hidden"
+              className="bg-white w-full max-w-[450px] max-h-[90vh] rounded-[32px] overflow-hidden flex flex-col"
             >
-              <div className="p-6">
+              <div className="p-6 flex-1 overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-[#1A1A1A]">
                     {editingLine ? t('admin.edit_line') : t('admin.add_line')}
@@ -228,6 +314,117 @@ export const ManageLines = () => {
                         className="flex-1 h-12 bg-[#FAFAFA] border border-[#E8E8E8] rounded-xl px-4 focus:border-[#F57C00] outline-none"
                       />
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-[12px] font-bold text-[#9E9E9E] uppercase mb-1 block">{t('admin.line_type')}</label>
+                    <select
+                      value={formData.type}
+                      onChange={e => setFormData({ ...formData, type: e.target.value })}
+                      className="w-full h-12 bg-[#FAFAFA] border border-[#E8E8E8] rounded-xl px-4 focus:border-[#F57C00] outline-none"
+                    >
+                      <option value="Standard">{t('admin.type_standard')}</option>
+                      <option value="Express">{t('admin.type_express')}</option>
+                      <option value="Navette">{t('admin.type_shuttle')}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[12px] font-bold text-[#9E9E9E] uppercase mb-1 block">
+                      {t('admin.stops')} ({formData.selectedStops.length})
+                    </label>
+                    <div className="space-y-2 max-h-[200px] overflow-y-auto border border-[#E8E8E8] rounded-xl p-2 bg-[#FAFAFA]">
+                      {formData.selectedStops.map((stopId, index) => {
+                        const stop = allStops.find(s => s.id.toString() === stopId);
+                        return (
+                          <div key={`${stopId}-${index}`} className="flex items-center justify-between bg-white p-2 rounded-lg shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 bg-[#F57C00] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                                {index + 1}
+                              </span>
+                              <span className="text-sm font-medium truncate max-w-[150px]">{stop?.nom || 'Stop'}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                disabled={index === 0}
+                                onClick={() => {
+                                  const newStops = [...formData.selectedStops];
+                                  [newStops[index], newStops[index-1]] = [newStops[index-1], newStops[index]];
+                                  setFormData({ ...formData, selectedStops: newStops });
+                                }}
+                                className="p-1 text-gray-400 disabled:opacity-30"
+                              >
+                                <ChevronUp className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={index === formData.selectedStops.length - 1}
+                                onClick={() => {
+                                  const newStops = [...formData.selectedStops];
+                                  [newStops[index], newStops[index+1]] = [newStops[index+1], newStops[index]];
+                                  setFormData({ ...formData, selectedStops: newStops });
+                                }}
+                                className="p-1 text-gray-400 disabled:opacity-30"
+                              >
+                                <ChevronDown className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newStops = formData.selectedStops.filter((_, i) => i !== index);
+                                  setFormData({ ...formData, selectedStops: newStops });
+                                }}
+                                className="p-1 text-red-400"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value && !formData.selectedStops.includes(e.target.value)) {
+                            setFormData({ ...formData, selectedStops: [...formData.selectedStops, e.target.value] });
+                          }
+                          e.target.value = '';
+                        }}
+                        className="w-full h-10 text-sm bg-white border border-dashed border-gray-300 rounded-lg px-2 outline-none"
+                      >
+                        <option value="">+ {t('admin.add_stop')}</option>
+                        {allStops
+                          .filter(s => !formData.selectedStops.includes(s.id.toString()))
+                          .map(s => (
+                            <option key={s.id} value={s.id}>{s.nom}</option>
+                          ))
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, hasWiFi: !formData.hasWiFi })}
+                      className={`h-12 rounded-xl border flex items-center justify-center gap-2 transition-all ${formData.hasWiFi ? 'bg-[#E8F5E9] border-[#2E7D32] text-[#2E7D32]' : 'bg-[#FAFAFA] border-[#E8E8E8] text-[#9E9E9E]'}`}
+                    >
+                      <span className="text-[12px] font-bold">{t('admin.has_wifi')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, hasAC: !formData.hasAC })}
+                      className={`h-12 rounded-xl border flex items-center justify-center gap-2 transition-all ${formData.hasAC ? 'bg-[#E8F5E9] border-[#2E7D32] text-[#2E7D32]' : 'bg-[#FAFAFA] border-[#E8E8E8] text-[#9E9E9E]'}`}
+                    >
+                      <span className="text-[12px] font-bold">{t('admin.has_ac')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isAccessible: !formData.isAccessible })}
+                      className={`h-12 rounded-xl border flex items-center justify-center gap-2 transition-all col-span-2 ${formData.isAccessible ? 'bg-[#E8F5E9] border-[#2E7D32] text-[#2E7D32]' : 'bg-[#FAFAFA] border-[#E8E8E8] text-[#9E9E9E]'}`}
+                    >
+                      <span className="text-[12px] font-bold">{t('admin.is_accessible')}</span>
+                    </button>
                   </div>
                   <button
                     type="submit"

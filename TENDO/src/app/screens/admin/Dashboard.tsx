@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bus, MapPin, Menu, X, Home as HomeIcon, LogOut, Users } from 'lucide-react';
+import { Bus, MapPin, Menu, X, Home as HomeIcon, LogOut, Users, Globe, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'sonner';
@@ -40,7 +40,10 @@ export const Dashboard = () => {
   const menuItems = [
     { icon: HomeIcon, label: 'Dashboard', active: true },
     { icon: MapPin, label: t('admin.manage_stops'), onClick: () => navigate('/admin/stops') },
-    { icon: Bus, label: t('admin.manage_lines'), onClick: () => navigate('/admin/lines') }
+    { icon: Bus, label: t('admin.manage_lines'), onClick: () => navigate('/admin/lines') },
+    { icon: Users, label: t('admin.users'), onClick: () => navigate('/admin/users') },
+    { icon: Bell, label: t('notifications.title'), onClick: () => navigate('/admin/notifications') },
+    { icon: Globe, label: t('profile.title'), onClick: () => navigate('/admin/profile') }
   ];
 
   const handleLogout = () => {
@@ -50,7 +53,7 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="size-full bg-[#FAFAFA] flex flex-col overflow-hidden">
+    <div className="size-full bg-background flex flex-col overflow-hidden transition-colors duration-300">
       <div className="bg-[#F57C00] h-[88px] pt-[44px] px-5 flex items-center justify-between rounded-b-[24px]">
         <div className="flex items-center gap-3">
           <Bus className="w-8 h-8 text-white" />
@@ -69,12 +72,12 @@ export const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#FFF3E0] border-l-4 border-[#F57C00] rounded-[20px] p-5 mb-5"
+          className="bg-orange-500/10 border-l-4 border-[#F57C00] rounded-[20px] p-5 mb-5"
         >
           <h2 className="text-[#F57C00] font-bold text-lg mb-1">
             {t('admin.welcome_admin')}
           </h2>
-          <p className="text-[#616161] text-[14px]">{t('admin.manage_app')}</p>
+          <p className="text-muted-foreground text-[14px]">{t('admin.manage_app')}</p>
         </motion.div>
 
         <div className="mb-5">
@@ -89,7 +92,7 @@ export const Dashboard = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-[20px] border border-[#E8E8E8] p-4"
+                className="bg-card rounded-[20px] border border-border p-4"
               >
                 <motion.p
                   initial={{ opacity: 0 }}
@@ -100,7 +103,7 @@ export const Dashboard = () => {
                 >
                   {stat.value}
                 </motion.p>
-                <p className="text-[12px] text-[#616161]">{stat.label}</p>
+                <p className="text-[12px] text-muted-foreground">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -114,7 +117,7 @@ export const Dashboard = () => {
           <div className="space-y-3">
             <motion.button
               onClick={() => navigate('/admin/stops')}
-              className="w-full bg-white rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
+              className="w-full bg-card rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
@@ -122,10 +125,10 @@ export const Dashboard = () => {
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[#1A1A1A] mb-1">
+                  <h3 className="font-semibold text-foreground mb-1">
                     {t('admin.manage_stops')}
                   </h3>
-                  <p className="text-[14px] text-[#616161] mb-2">
+                  <p className="text-[14px] text-muted-foreground mb-2">
                     {t('admin.manage_stops_desc')}
                   </p>
                   <span className="text-[#F57C00] text-[14px] font-medium">
@@ -137,7 +140,7 @@ export const Dashboard = () => {
 
             <motion.button
               onClick={() => navigate('/admin/lines')}
-              className="w-full bg-white rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
+              className="w-full bg-card rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
@@ -145,11 +148,57 @@ export const Dashboard = () => {
                   <Bus className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[#1A1A1A] mb-1">
+                  <h3 className="font-semibold text-foreground mb-1">
                     {t('admin.manage_lines')}
                   </h3>
-                  <p className="text-[14px] text-[#616161] mb-2">
+                  <p className="text-[14px] text-muted-foreground mb-2">
                     {t('admin.manage_lines_desc')}
+                  </p>
+                  <span className="text-[#F57C00] text-[14px] font-medium">
+                    {t('admin.access')} →
+                  </span>
+                </div>
+              </div>
+            </motion.button>
+
+            <motion.button
+              onClick={() => navigate('/admin/users')}
+              className="w-full bg-card rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#F57C00] flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">
+                    Gérer les utilisateurs
+                  </h3>
+                  <p className="text-[14px] text-muted-foreground mb-2">
+                    Consultez la liste des utilisateurs et gérez les comptes.
+                  </p>
+                  <span className="text-[#F57C00] text-[14px] font-medium">
+                    {t('admin.access')} →
+                  </span>
+                </div>
+              </div>
+            </motion.button>
+
+            <motion.button
+              onClick={() => navigate('/admin/notifications')}
+              className="w-full bg-card rounded-[20px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-left"
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#F57C00] flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">
+                    Diffuser des notifications
+                  </h3>
+                  <p className="text-[14px] text-muted-foreground mb-2">
+                    Envoyez des alertes en temps réel à tous les voyageurs.
                   </p>
                   <span className="text-[#F57C00] text-[14px] font-medium">
                     {t('admin.access')} →
@@ -177,7 +226,7 @@ export const Dashboard = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed left-0 top-0 bottom-0 w-[280px] bg-white rounded-r-[24px] shadow-lg z-50 overflow-hidden"
+              className="fixed left-0 top-0 bottom-0 w-[280px] bg-card rounded-r-[24px] shadow-lg z-50 overflow-hidden"
             >
               <div className="bg-[#F57C00] h-[130px] flex items-center justify-center rounded-br-[24px]">
                 <div className="text-center">
@@ -197,7 +246,7 @@ export const Dashboard = () => {
                       w-full flex items-center gap-3 px-4 py-3 rounded-[16px] mb-2 transition-all
                       ${item.active
                         ? 'bg-[#E8F5E9] border-l-3 border-[#2E7D32] text-[#2E7D32] font-semibold'
-                        : 'text-[#1A1A1A] hover:bg-[#FAFAFA]'
+                        : 'text-foreground hover:bg-muted'
                       }
                     `}
                   >
@@ -206,11 +255,11 @@ export const Dashboard = () => {
                   </button>
                 ))}
 
-                <div className="h-px bg-[#E8E8E8] my-4" />
+                <div className="h-px bg-border my-4" />
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-[#C62828] hover:bg-[#FAFAFA]"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-[#C62828] hover:bg-muted"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>{t('profile.logout')}</span>

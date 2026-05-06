@@ -41,14 +41,14 @@ export const Input = ({
           onBlur={() => setIsFocused(false)}
           placeholder={isFocused || hasValue ? '' : placeholder}
           className={`
-            w-full h-[56px] rounded-[16px] px-4 bg-[#FAFAFA] transition-all duration-200
+            w-full h-[56px] rounded-[16px] px-4 bg-input-background transition-all duration-200 text-foreground
             ${icon ? 'pl-12' : ''}
             ${isPassword ? 'pr-12' : success ? 'pr-12' : ''}
             ${error
               ? 'border-[1.5px] border-[#C62828]'
               : isFocused
                 ? 'border-[1.5px] border-[#F57C00]'
-                : 'border border-[#E8E8E8]'
+                : 'border border-border'
             }
           `}
         />
@@ -68,7 +68,7 @@ export const Input = ({
               transition={{ duration: 0.2, ease: 'easeOut' }}
               className={`
                 absolute left-4 pointer-events-none font-medium
-                ${error ? 'text-[#C62828]' : 'text-[#9E9E9E]'}
+                ${error ? 'text-[#C62828]' : 'text-muted-foreground'}
               `}
             >
               {label}
@@ -77,7 +77,7 @@ export const Input = ({
         </AnimatePresence>
 
         {!isFocused && !hasValue && (
-          <label className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9E9E9E] pointer-events-none">
+          <label className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
             {label}
           </label>
         )}
@@ -92,7 +92,7 @@ export const Input = ({
           </button>
         )}
 
-        {success && !error && hasValue && (
+        {success && !error && hasValue && !isPassword && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

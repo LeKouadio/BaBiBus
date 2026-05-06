@@ -9,12 +9,13 @@ interface MapComponentProps {
 
 declare const L: any;
 
-const ABIDJAN_CENTER: [number, number] = [5.30966, -4.01266];
+const ABIDJAN_CENTER: [number, number] = [5.3265, -4.0180]; // Place de la République, Abidjan
 
-export const MapComponent: React.FC<MapComponentProps> = ({ center = ABIDJAN_CENTER, zoom = 13, markers, route }) => {
+export const MapComponent: React.FC<MapComponentProps> = ({ center = ABIDJAN_CENTER, zoom = 14, markers, route }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const routeLayer = useRef<any>(null);
+  const routeHaloLayer = useRef<any>(null);
 
   // Custom Icons
   const createStopIcon = () => L.divIcon({
@@ -119,17 +120,36 @@ export const MapComponent: React.FC<MapComponentProps> = ({ center = ABIDJAN_CEN
         mapInstance.current.removeLayer(routeLayer.current);
         routeLayer.current = null;
       }
+      if (routeHaloLayer.current) {
+        mapInstance.current.removeLayer(routeHaloLayer.current);
+        routeHaloLayer.current = null;
+      }
 
       if (route && route.length > 1) {
-        routeLayer.current = L.polyline(route, {
-          color: '#2E7D32',
-          weight: 6,
-          opacity: 0.8,
-          lineJoin: 'round'
+        // Subtle halo for visibility - DARK GREEN
+        routeHaloLayer.current = L.polyline(route, {
+          color: '#1B5E20',
+          weight: 12,
+          opacity: 0.15,
+          lineJoin: 'round',
+          lineCap: 'round'
         }).addTo(mapInstance.current);
-        
-        // Fit bounds to show the whole route if needed
-        mapInstance.current.fitBounds(routeLayer.current.getBounds(), { padding: [50, 50] });
+
+        // Main PREMIUM DARK GREEN route line
+        routeLayer.current = L.polyline(route, {
+          color: '#1B5E20',
+          weight: 5,
+          opacity: 1,
+          lineJoin: 'round',
+          lineCap: 'round'
+        }).addTo(mapInstance.current);
+
+        // Smoothly zoom to the new route
+        mapInstance.current.fitBounds(routeLayer.current.getBounds(), { 
+          padding: [50, 50],
+          animate: true,
+          duration: 1
+        });
       }
     }
   }, [route]);

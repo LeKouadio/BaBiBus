@@ -9,7 +9,7 @@ export const Welcome = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="size-full bg-[#FAFAFA] flex flex-col overflow-hidden relative">
+    <div className="size-full bg-background flex flex-col overflow-hidden relative transition-colors duration-300">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFB74D]/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#F57C00]/10 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
@@ -60,7 +60,7 @@ export const Welcome = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-[28px] font-black text-[#1A1A1A] mb-3 leading-[1.1] tracking-tight"
+            className="text-[28px] font-black text-foreground mb-3 leading-[1.1] tracking-tight"
           >
             {t('welcome.title_1')}<br/>{t('welcome.title_2')} <span className="text-[#F57C00]">{t('welcome.title_highlight')}</span>
           </motion.h2>
@@ -71,30 +71,40 @@ export const Welcome = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="w-full space-y-4 mb-10"
+          className="w-full space-y-3 mb-10"
         >
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/login?role=user')}
             className="w-full h-14 bg-gradient-to-r from-[#FF9800] via-[#F57C00] to-[#E65100] text-white rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2 shadow-[0_12px_28px_rgba(245,124,0,0.3)] relative overflow-hidden group border border-[#FFB74D]/30"
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
             <span className="relative z-10 flex items-center gap-2 drop-shadow-sm">
-              {t('welcome.login')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Navigation className="w-5 h-5" />
+              {t('welcome.login_user')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/register')}
-            className="w-full h-14 bg-white text-[#F57C00] border-2 border-[#F57C00]/20 rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:bg-[#F57C00]/5 transition-colors"
+            onClick={() => navigate('/login?role=admin')}
+            className="w-full h-14 bg-card text-[#E65100] border-2 border-[#E65100]/20 rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,0,0,0.04)] hover:bg-[#E65100]/5 transition-colors"
           >
-            <UserPlus className="w-5 h-5" />
+            <ShieldCheck className="w-5 h-5" />
+            {t('welcome.login_admin')}
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/register')}
+            className="w-full h-12 text-muted-foreground font-semibold text-[15px] flex items-center justify-center gap-2 hover:text-[#F57C00] transition-colors pt-2"
+          >
+            <UserPlus className="w-4 h-4" />
             {t('welcome.register')}
           </motion.button>
         </motion.div>
 
-        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4" />
+        <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-4" />
       </motion.div>
     </div>
   );

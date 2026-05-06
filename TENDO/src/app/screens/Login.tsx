@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { useNavigate } from 'react-router';
-import { Mail, Lock, Bus, MapPin, ArrowLeft } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router';
+import { Mail, Lock, Bus, MapPin, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,8 +36,10 @@ const itemVariants = {
 export const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roleMode = searchParams.get('role') || 'user';
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(roleMode === 'admin' ? 'admin@babibus.com' : '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -45,9 +47,10 @@ export const Login = () => {
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!email.trim()) {
+    const emailValue = email.trim();
+    if (!emailValue) {
       newErrors.email = t('validation.required');
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(emailValue) && emailValue !== 'admin') {
       newErrors.email = t('validation.invalid_email');
     }
     if (!password) {
@@ -65,27 +68,43 @@ export const Login = () => {
 
     setLoading(true);
     try {
-      const role = email.includes('admin') ? 'admin' : 'user';
-      await login(email, password, role);
+      const emailValue = email.trim();
+      const loginEmail = emailValue === 'admin' ? 'admin@babibus.com' : emailValue;
+      const user = await login(loginEmail, password);
       toast.success(t('auth.login_success'));
 
-      if (role === 'admin') {
+      if (user.role === 'admin') {
         navigate('/admin/dashboard');
       } else {
         navigate('/user/home');
       }
-    } catch (error) {
-      setErrors({ password: t('auth.error_invalid_credentials') });
+    } catch (error: any) {
+      console.error('Login error:', error);
+      let message = t('auth.error_invalid_credentials');
+      
+      const serverMsg: string = error.response?.data?.message || error.response?.data || '';
+      if (error.response?.status === 401) {
+        if (typeof serverMsg === 'string' && serverMsg.toLowerCase().includes('disabled')) {
+          message = t('auth.error_account_disabled');
+        } else {
+          message = t('auth.error_invalid_credentials');
+        }
+      } else if (serverMsg) {
+        message = serverMsg;
+      }
+      
+      toast.error(message);
+      setErrors({ password: message });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="size-full bg-[#FAFAFA] flex flex-col overflow-hidden relative">
+    <div className="size-full bg-background flex flex-col overflow-hidden relative transition-colors duration-300">
       {/* Dynamic Background Elements */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFB74D]/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#F57C00]/10 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 pointer-events-none" />
 
       {/* Hero Header Section */}
       <motion.div
@@ -109,10 +128,14 @@ export const Login = () => {
           <motion.div 
             animate={{ y: [-4, 4, -4] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative mb-3 bg-white/20 backdrop-blur-xl p-4 rounded-[24px] border border-white/40 shadow-xl mt-2"
+            className={`relative mb-3 ${roleMode === 'admin' ? 'bg-white/30' : 'bg-white/20'} backdrop-blur-xl p-4 rounded-[24px] border border-white/40 shadow-xl mt-2`}
           >
             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent rounded-[24px] pointer-events-none" />
-            <Bus className="w-10 h-10 text-white drop-shadow-md" />
+            {roleMode === 'admin' ? (
+              <ShieldCheck className="w-10 h-10 text-white drop-shadow-md" />
+            ) : (
+              <Bus className="w-10 h-10 text-white drop-shadow-md" />
+            )}
             <motion.div 
               animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -123,10 +146,10 @@ export const Login = () => {
           </motion.div>
           
           <h2 className="text-[28px] font-black text-white drop-shadow-md tracking-tight">
-            {t('auth.login_title')}
+            {roleMode === 'admin' ? t('admin.dashboard_title') : t('auth.login_title')}
           </h2>
           <p className="text-[#FFE0B2] text-[15px] font-medium mt-1">
-            {t('auth.login_subtitle')}
+            {roleMode === 'admin' ? t('admin.access') : t('auth.login_subtitle')}
           </p>
         </div>
       </motion.div>
@@ -163,7 +186,7 @@ export const Login = () => {
             <div className="text-right mt-2">
               <button
                 type="button"
-                onClick={() => toast.success(t('auth.reset_link_sent'))}
+                onClick={() => navigate('/forgot-password')}
                 className="text-[#2E7D32] text-[14px] font-semibold"
               >
                 {t('auth.forgot_password')}
@@ -179,7 +202,7 @@ export const Login = () => {
 
           <motion.p 
             variants={itemVariants}
-            className="text-center text-[15px] text-[#616161] pt-4"
+            className="text-center text-[15px] text-muted-foreground pt-4"
           >
             {t('auth.no_account')}{' '}
             <button
